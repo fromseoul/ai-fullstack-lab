@@ -60,3 +60,143 @@ p {
 .dot.pending {
   background-color: #eab308;
 }
+
+/* Auth Pages */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.auth-card {
+  background: #1a1a1a;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-card h1 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: #888;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #0a0a0a;
+  color: #ededed;
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+.auth-link {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.auth-link a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+/* Dashboard */
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 200px;
+  background: #1a1a1a;
+  padding: 2rem 1rem;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar a {
+  color: #888;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+}
+
+.sidebar a:hover {
+  background: #333;
+  color: #ededed;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 2rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.card {
+  background: #1a1a1a;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.card h3 {
+  font-size: 0.875rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+}
+
+.stat {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ededed;
+}
+
+.stat.active {
+  color: #22c55e;
+}

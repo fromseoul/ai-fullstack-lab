@@ -1,10 +1,10 @@
-import express from "express";
+import express, { type Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import healthRouter from "./routes/health.js";
 
-const app = express();
+const app: Express = express();
 const PORT = process.env.PORT || 4000;
 
 // Middlewares

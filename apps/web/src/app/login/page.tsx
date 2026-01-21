@@ -1,53 +1,89 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { Form, Input, Button, Card, Typography, Alert, Space } from "antd";
+import { MailOutlined, LockOutlined } from "@ant-design/icons";
+
+const { Title, Text } = Typography;
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Firebase Auth 연동
-    console.log("Login:", { email, password });
+  const handleSubmit = async (values: { email: string; password: string }) => {
+    setError("");
+    setLoading(true);
+
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      router.push("/dashboard");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "로그인 실패";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <main className="auth-container">
-      <div className="auth-card">
-        <h1>로그인</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="email">이메일</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@example.com"
-              required
-            />
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 24,
+      background: "#141414"
+    }}>
+      <Card style={{ width: 400, maxWidth: "100%" }}>
+        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+          <div style={{ textAlign: "center" }}>
+            <Title level={3} style={{ margin: 0 }}>로그인</Title>
+            <Text type="secondary">AI Fullstack Lab에 오신 것을 환영합니다</Text>
           </div>
-          <div className="form-group">
-            <label htmlFor="password">비밀번호</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-            />
+
+          {error && (
+            <Alert message={error} type="error" showIcon closable onClose={() => setError("")} />
+          )}
+
+          <Form layout="vertical" onFinish={handleSubmit} requiredMark={false}>
+            <Form.Item
+              name="email"
+              label="이메일"
+              rules={[
+                { required: true, message: "이메일을 입력해주세요" },
+                { type: "email", message: "올바른 이메일 형식이 아닙니다" },
+              ]}
+            >
+              <Input prefix={<MailOutlined />} placeholder="email@example.com" size="large" />
+            </Form.Item>
+
+            <Form.Item
+              name="password"
+              label="비밀번호"
+              rules={[{ required: true, message: "비밀번호를 입력해주세요" }]}
+            >
+              <Input.Password prefix={<LockOutlined />} placeholder="비밀번호" size="large" />
+            </Form.Item>
+
+            <Form.Item>
+              <Button type="primary" htmlType="submit" loading={loading} block size="large">
+                로그인
+              </Button>
+            </Form.Item>
+          </Form>
+
+          <div style={{ textAlign: "center" }}>
+            <Text type="secondary">
+              계정이 없으신가요? <Link href="/signup">회원가입</Link>
+            </Text>
           </div>
-          <button type="submit" className="btn-primary">
-            로그인
-          </button>
-        </form>
-        <p className="auth-link">
-          계정이 없으신가요? <Link href="/signup">회원가입</Link>
-        </p>
-      </div>
-    </main>
+        </Space>
+      </Card>
+    </div>
   );
 }

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 export default function SignupPage() {
@@ -14,12 +14,40 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const passwordValidation = useMemo(() => {
+    return {
+      minLength: password.length >= 8,
+      hasLetter: /[a-zA-Z]/.test(password),
+      hasNumber: /[0-9]/.test(password),
+      hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+    };
+  }, [password]);
+
+  const isPasswordValid = Object.values(passwordValidation).every(Boolean);
+
+  const validatePassword = () => {
+    if (!passwordValidation.minLength) {
+      return "비밀번호는 8자 이상이어야 합니다";
+    }
+    if (!passwordValidation.hasLetter) {
+      return "비밀번호에 영문자를 포함해야 합니다";
+    }
+    if (!passwordValidation.hasNumber) {
+      return "비밀번호에 숫자를 포함해야 합니다";
+    }
+    if (!passwordValidation.hasSpecial) {
+      return "비밀번호에 특수문자를 포함해야 합니다";
+    }
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (password.length < 6) {
-      setError("비밀번호는 6자 이상이어야 합니다");
+    const passwordError = validatePassword();
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 
@@ -31,11 +59,36 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      router.push("/");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "회원가입 실패";
-      setError(message);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+      // 이메일 인증 발송 시도 (실패해도 계속 진행)
+      try {
+        await sendEmailVerification(userCredential.user);
+      } catch (emailErr) {
+        console.error("Email verification send error:", emailErr);
+        // 이메일 발송 실패해도 verify-email 페이지에서 재발송 가능
+      }
+
+      router.push("/verify-email");
+    } catch (err: unknown) {
+      if (err instanceof Error && "code" in err) {
+        const firebaseError = err as { code: string };
+        switch (firebaseError.code) {
+          case "auth/email-already-in-use":
+            setError("이미 사용 중인 이메일입니다");
+            break;
+          case "auth/invalid-email":
+            setError("올바른 이메일 형식이 아닙니다");
+            break;
+          case "auth/weak-password":
+            setError("비밀번호가 너무 약합니다");
+            break;
+          default:
+            setError("회원가입에 실패했습니다. 다시 시도해주세요");
+        }
+      } else {
+        setError("회원가입에 실패했습니다. 다시 시도해주세요");
+      }
     } finally {
       setLoading(false);
     }
@@ -101,12 +154,55 @@ export default function SignupPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="비밀번호 (6자 이상)"
+                placeholder="비밀번호"
                 required
-                minLength={6}
                 className="w-full pl-10 pr-4 py-3 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
+            {password && (
+              <div className="mt-2 space-y-1">
+                <div className="flex items-center gap-2 text-xs">
+                  <svg className={`w-4 h-4 ${passwordValidation.minLength ? "text-green-500" : "text-gray-500"}`} fill="currentColor" viewBox="0 0 20 20">
+                    {passwordValidation.minLength ? (
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    ) : (
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    )}
+                  </svg>
+                  <span className={passwordValidation.minLength ? "text-green-500" : "text-gray-400"}>8자 이상</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <svg className={`w-4 h-4 ${passwordValidation.hasLetter ? "text-green-500" : "text-gray-500"}`} fill="currentColor" viewBox="0 0 20 20">
+                    {passwordValidation.hasLetter ? (
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    ) : (
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    )}
+                  </svg>
+                  <span className={passwordValidation.hasLetter ? "text-green-500" : "text-gray-400"}>영문자 포함</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <svg className={`w-4 h-4 ${passwordValidation.hasNumber ? "text-green-500" : "text-gray-500"}`} fill="currentColor" viewBox="0 0 20 20">
+                    {passwordValidation.hasNumber ? (
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    ) : (
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    )}
+                  </svg>
+                  <span className={passwordValidation.hasNumber ? "text-green-500" : "text-gray-400"}>숫자 포함</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <svg className={`w-4 h-4 ${passwordValidation.hasSpecial ? "text-green-500" : "text-gray-500"}`} fill="currentColor" viewBox="0 0 20 20">
+                    {passwordValidation.hasSpecial ? (
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    ) : (
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    )}
+                  </svg>
+                  <span className={passwordValidation.hasSpecial ? "text-green-500" : "text-gray-400"}>특수문자 포함 (!@#$%^&* 등)</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
@@ -129,11 +225,14 @@ export default function SignupPage() {
                 className="w-full pl-10 pr-4 py-3 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
+            {confirmPassword && password !== confirmPassword && (
+              <p className="mt-1 text-xs text-red-400">비밀번호가 일치하지 않습니다</p>
+            )}
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !isPasswordValid || password !== confirmPassword}
             className="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? "가입 중..." : "회원가입"}

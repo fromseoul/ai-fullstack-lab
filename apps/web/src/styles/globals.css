@@ -1,11 +1,16 @@
 @import "tailwindcss";
 
+@source "../app/**/*.tsx";
+@source "../components/**/*.tsx";
+
 @theme {
   --color-primary: #3b82f6;
 }
 
 body {
-  @apply bg-gray-900 text-gray-100 min-h-screen;
+  background-color: #111827;
+  color: #f3f4f6;
+  min-height: 100vh;
 }
 
 a {

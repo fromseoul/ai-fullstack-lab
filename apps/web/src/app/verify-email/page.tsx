@@ -6,6 +6,14 @@ import Link from "next/link";
 import { onAuthStateChanged, sendEmailVerification, signOut, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
+import CircularProgress from "@mui/material/CircularProgress";
+import EmailIcon from "@mui/icons-material/Email";
+
 export default function VerifyEmailPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
@@ -23,7 +31,6 @@ export default function VerifyEmailPage() {
         return;
       }
 
-      // 소셜 로그인 사용자는 이메일 인증이 필요 없음
       const isSocialLogin =
         currentUser.uid.startsWith("kakao:") ||
         currentUser.providerData.some(p => p.providerId === "google.com");
@@ -91,88 +98,153 @@ export default function VerifyEmailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-6 bg-gray-900">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-400">로딩 중...</p>
-        </div>
-      </div>
+      <Box
+        sx={{
+          minHeight: "calc(100vh - 4rem)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 3,
+        }}
+      >
+        <Box sx={{ textAlign: "center" }}>
+          <CircularProgress sx={{ mb: 2 }} />
+          <Typography color="text.secondary">로딩 중...</Typography>
+        </Box>
+      </Box>
     );
   }
 
   if (!user) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-6 bg-gray-900">
-        <div className="text-center">
-          <p className="text-gray-400 mb-4">로그인이 필요합니다.</p>
-          <Link href="/login" className="text-primary hover:text-blue-400">
+      <Box
+        sx={{
+          minHeight: "calc(100vh - 4rem)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 3,
+        }}
+      >
+        <Box sx={{ textAlign: "center" }}>
+          <Typography color="text.secondary" sx={{ mb: 2 }}>
+            로그인이 필요합니다.
+          </Typography>
+          <Typography
+            component={Link}
+            href="/login"
+            color="primary"
+            sx={{ textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
+          >
             로그인 페이지로 이동
-          </Link>
-        </div>
-      </div>
+          </Typography>
+        </Box>
+      </Box>
     );
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-6 bg-gray-900">
-      <div className="w-full max-w-md bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
-        <div className="mb-6">
-          <div className="w-16 h-16 mx-auto mb-4 bg-blue-900/50 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-white mb-2">이메일 인증</h1>
-          <p className="text-gray-400 mb-2">
+    <Box
+      sx={{
+        minHeight: "calc(100vh - 4rem)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        p: 3,
+      }}
+    >
+      <Paper
+        sx={{
+          width: "100%",
+          maxWidth: 400,
+          p: 4,
+          bgcolor: "grey.800",
+          border: 1,
+          borderColor: "grey.700",
+          textAlign: "center",
+        }}
+      >
+        <Box sx={{ mb: 3 }}>
+          <Box
+            sx={{
+              width: 64,
+              height: 64,
+              mx: "auto",
+              mb: 2,
+              bgcolor: "rgba(59, 130, 246, 0.1)",
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <EmailIcon sx={{ fontSize: 32, color: "primary.main" }} />
+          </Box>
+          <Typography variant="h5" fontWeight="bold" color="white" gutterBottom>
+            이메일 인증
+          </Typography>
+          <Typography color="text.secondary" sx={{ mb: 1 }}>
             가입하신 이메일로 인증 메일을 보내드렸습니다.
-          </p>
-          <p className="text-primary font-medium">{user.email}</p>
-          <p className="text-gray-500 text-sm mt-2">
+          </Typography>
+          <Typography color="primary" fontWeight="medium">
+            {user.email}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             이메일의 인증 링크를 클릭한 후, 아래 버튼을 눌러주세요.
-          </p>
-        </div>
+          </Typography>
+        </Box>
 
         {message && (
-          <div className="mb-4 p-3 rounded-lg text-sm bg-green-900/50 border border-green-700 text-green-400">
+          <Alert severity="success" sx={{ mb: 2 }}>
             {message}
-          </div>
+          </Alert>
         )}
 
         {error && (
-          <div className="mb-4 p-3 rounded-lg text-sm bg-red-900/50 border border-red-700 text-red-400">
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
-          </div>
+          </Alert>
         )}
 
-        <div className="space-y-3">
-          <button
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
             onClick={handleCheckVerification}
-            className="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
+            sx={{ py: 1.5 }}
           >
             인증 완료 확인
-          </button>
+          </Button>
 
-          <button
+          <Button
+            fullWidth
+            variant="contained"
             onClick={handleResendEmail}
             disabled={resending}
-            className="w-full py-3 bg-gray-700 text-white rounded-lg font-medium hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            sx={{
+              py: 1.5,
+              bgcolor: "grey.700",
+              "&:hover": { bgcolor: "grey.600" },
+            }}
           >
-            {resending ? "발송 중..." : "인증 이메일 재발송"}
-          </button>
-        </div>
+            {resending ? <CircularProgress size={24} color="inherit" /> : "인증 이메일 재발송"}
+          </Button>
+        </Box>
 
-        <div className="mt-6 pt-6 border-t border-gray-700">
-          <p className="text-sm text-gray-500 mb-4">
+        <Box sx={{ mt: 4, pt: 3, borderTop: 1, borderColor: "grey.700" }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             이메일이 오지 않나요? 스팸 폴더를 확인해보세요.
-          </p>
-          <button
+          </Typography>
+          <Button
+            variant="text"
             onClick={handleLogout}
-            className="text-gray-400 hover:text-white text-sm"
+            sx={{ color: "text.secondary", "&:hover": { color: "white" } }}
           >
             다른 계정으로 로그인
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
   );
 }

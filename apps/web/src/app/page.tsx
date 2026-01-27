@@ -6,6 +6,18 @@ import { useRouter } from "next/navigation";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Paper from "@mui/material/Paper";
+import Grid from "@mui/material/Grid";
+import CircularProgress from "@mui/material/CircularProgress";
+import PersonIcon from "@mui/icons-material/Person";
+import BoltIcon from "@mui/icons-material/Bolt";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import LoginIcon from "@mui/icons-material/Login";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+
 const statusItems = [
   { name: "Frontend: Next.js", active: true },
   { name: "Backend: Express", active: true },
@@ -21,12 +33,10 @@ export default function HomePage() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
-        // 소셜 로그인 사용자 체크 (카카오: kakao:, 구글: providerData에 google.com)
         const isSocialLogin =
           currentUser.uid.startsWith("kakao:") ||
           currentUser.providerData.some(p => p.providerId === "google.com");
 
-        // 소셜 로그인이 아니고 이메일 인증이 안 된 경우만 리다이렉트
         if (!isSocialLogin && !currentUser.emailVerified) {
           router.push("/verify-email");
           return;
@@ -40,112 +50,176 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="p-12 text-center">
-        <p className="text-gray-400">로딩 중...</p>
-      </div>
+      <Box sx={{ p: 6, textAlign: "center" }}>
+        <CircularProgress />
+        <Typography color="text.secondary" sx={{ mt: 2 }}>
+          로딩 중...
+        </Typography>
+      </Box>
     );
   }
 
   if (user) {
     return (
-      <div className="p-6 md:p-12 max-w-6xl mx-auto">
-        <h2 className="text-2xl font-bold text-white mb-2">대시보드</h2>
-        <p className="text-gray-400 mb-6">{user.displayName || user.email || "사용자"}님, 환영합니다!</p>
+      <Box sx={{ p: { xs: 3, md: 6 }, maxWidth: 1200, mx: "auto" }}>
+        <Typography variant="h5" fontWeight="bold" color="white" gutterBottom>
+          대시보드
+        </Typography>
+        <Typography color="text.secondary" sx={{ mb: 3 }}>
+          {user.displayName || user.email || "사용자"}님, 환영합니다!
+        </Typography>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-            <p className="text-gray-400 text-sm mb-1">사용자</p>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-              </svg>
-              <span className="text-2xl font-bold text-white">1</span>
-            </div>
-          </div>
-          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-            <p className="text-gray-400 text-sm mb-1">API 요청</p>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <span className="text-2xl font-bold text-white">0</span>
-            </div>
-          </div>
-          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-            <p className="text-gray-400 text-sm mb-1">상태</p>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="text-2xl font-bold text-green-500">정상</span>
-            </div>
-          </div>
-        </div>
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <Paper sx={{ p: 3, bgcolor: "grey.800", border: 1, borderColor: "grey.700" }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                사용자
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <PersonIcon color="primary" />
+                <Typography variant="h5" fontWeight="bold" color="white">
+                  1
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <Paper sx={{ p: 3, bgcolor: "grey.800", border: 1, borderColor: "grey.700" }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                API 요청
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <BoltIcon color="primary" />
+                <Typography variant="h5" fontWeight="bold" color="white">
+                  0
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <Paper sx={{ p: 3, bgcolor: "grey.800", border: 1, borderColor: "grey.700" }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                상태
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <CheckCircleIcon color="success" />
+                <Typography variant="h5" fontWeight="bold" color="success.main">
+                  정상
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
 
-        <div className="bg-gray-800 rounded-lg border border-gray-700">
-          <div className="px-6 py-4 border-b border-gray-700">
-            <h3 className="text-lg font-semibold text-white">Tech Stack</h3>
-          </div>
-          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {statusItems.map((item) => (
-              <div key={item.name} className="bg-gray-900 rounded-lg p-4 flex items-center gap-3">
-                <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span className="text-gray-300 text-sm">{item.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+        <Paper sx={{ bgcolor: "grey.800", border: 1, borderColor: "grey.700" }}>
+          <Box sx={{ px: 3, py: 2, borderBottom: 1, borderColor: "grey.700" }}>
+            <Typography variant="h6" fontWeight="semibold" color="white">
+              Tech Stack
+            </Typography>
+          </Box>
+          <Box sx={{ p: 3 }}>
+            <Grid container spacing={2}>
+              {statusItems.map((item) => (
+                <Grid key={item.name} size={{ xs: 12, sm: 6, md: 3 }}>
+                  <Paper
+                    sx={{
+                      p: 2,
+                      bgcolor: "grey.900",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.5,
+                    }}
+                  >
+                    <CheckCircleIcon color="success" fontSize="small" />
+                    <Typography variant="body2" color="text.secondary">
+                      {item.name}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        </Paper>
+      </Box>
     );
   }
 
   return (
-    <div className="p-6 md:p-12 max-w-3xl mx-auto">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-white mb-4">AI Fullstack Lab</h1>
-        <p className="text-gray-400 text-lg mb-6">Next.js + Express + Nginx Monorepo</p>
-        <div className="flex justify-center gap-4">
-          <Link
+    <Box sx={{ p: { xs: 3, md: 6 }, maxWidth: 600, mx: "auto" }}>
+      <Box sx={{ textAlign: "center", mb: 6 }}>
+        <Typography variant="h3" fontWeight="bold" color="white" gutterBottom>
+          AI Fullstack Lab
+        </Typography>
+        <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
+          Next.js + Express + Nginx Monorepo
+        </Typography>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+          <Button
+            component={Link}
             href="/login"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
+            variant="contained"
+            color="primary"
+            startIcon={<LoginIcon />}
+            size="large"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-            </svg>
             로그인
-          </Link>
-          <Link
+          </Button>
+          <Button
+            component={Link}
             href="/signup"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+            variant="contained"
+            color="success"
+            startIcon={<PersonAddIcon />}
+            size="large"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
             회원가입
-          </Link>
-        </div>
-      </div>
+          </Button>
+        </Box>
+      </Box>
 
-      <div className="bg-gray-800 rounded-lg border border-gray-700">
-        <div className="px-6 py-4 border-b border-gray-700">
-          <h3 className="text-lg font-semibold text-white">Tech Stack</h3>
-        </div>
-        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {statusItems.map((item) => (
-            <div key={item.name} className="bg-gray-900 rounded-lg p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span className="text-gray-300 text-sm">{item.name}</span>
-              </div>
-              <span className="text-xs px-2 py-1 bg-green-900/50 text-green-400 rounded">연동됨</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+      <Paper sx={{ bgcolor: "grey.800", border: 1, borderColor: "grey.700" }}>
+        <Box sx={{ px: 3, py: 2, borderBottom: 1, borderColor: "grey.700" }}>
+          <Typography variant="h6" fontWeight="semibold" color="white">
+            Tech Stack
+          </Typography>
+        </Box>
+        <Box sx={{ p: 3 }}>
+          <Grid container spacing={2}>
+            {statusItems.map((item) => (
+              <Grid key={item.name} size={{ xs: 12, sm: 6 }}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    bgcolor: "grey.900",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                    <CheckCircleIcon color="success" fontSize="small" />
+                    <Typography variant="body2" color="text.secondary">
+                      {item.name}
+                    </Typography>
+                  </Box>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      px: 1,
+                      py: 0.5,
+                      bgcolor: "rgba(34, 197, 94, 0.1)",
+                      color: "success.main",
+                      borderRadius: 1,
+                    }}
+                  >
+                    연동됨
+                  </Typography>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      </Paper>
+    </Box>
   );
 }

@@ -11,6 +11,10 @@
     "clean": "rm -rf .next node_modules"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.7",
     "@repo/shared": "workspace:*",
     "@supabase/supabase-js": "^2.91.0",
     "firebase": "^12.8.0",

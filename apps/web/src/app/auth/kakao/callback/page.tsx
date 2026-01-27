@@ -5,6 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signInWithCustomToken } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
+
 function KakaoCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -26,7 +30,6 @@ function KakaoCallbackContent() {
       return;
     }
 
-    // 백엔드로 인가 코드 전송
     const authenticateWithKakao = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -45,7 +48,6 @@ function KakaoCallbackContent() {
 
         const { customToken } = await response.json();
 
-        // Firebase Custom Token으로 로그인
         await signInWithCustomToken(auth, customToken);
 
         router.push("/");
@@ -60,21 +62,33 @@ function KakaoCallbackContent() {
   }, [searchParams, router]);
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-6 bg-gray-900">
-      <div className="text-center">
+    <Box
+      sx={{
+        minHeight: "calc(100vh - 4rem)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        p: 3,
+      }}
+    >
+      <Box sx={{ textAlign: "center" }}>
         {error ? (
-          <div className="text-red-400">
-            <p className="text-lg mb-2">{error}</p>
-            <p className="text-sm text-gray-500">로그인 페이지로 이동합니다...</p>
-          </div>
+          <>
+            <Typography color="error" variant="h6" sx={{ mb: 1 }}>
+              {error}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              로그인 페이지로 이동합니다...
+            </Typography>
+          </>
         ) : (
-          <div>
-            <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-400">카카오 로그인 처리 중...</p>
-          </div>
+          <>
+            <CircularProgress sx={{ mb: 2, color: "#FEE500" }} />
+            <Typography color="text.secondary">카카오 로그인 처리 중...</Typography>
+          </>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }
 
@@ -82,12 +96,20 @@ export default function KakaoCallbackPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-6 bg-gray-900">
-          <div className="text-center">
-            <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-400">로딩 중...</p>
-          </div>
-        </div>
+        <Box
+          sx={{
+            minHeight: "calc(100vh - 4rem)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            p: 3,
+          }}
+        >
+          <Box sx={{ textAlign: "center" }}>
+            <CircularProgress sx={{ mb: 2, color: "#FEE500" }} />
+            <Typography color="text.secondary">로딩 중...</Typography>
+          </Box>
+        </Box>
       }
     >
       <KakaoCallbackContent />

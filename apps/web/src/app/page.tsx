@@ -50,7 +50,7 @@ export default function HomePage() {
     return (
       <div className="p-6 md:p-12 max-w-6xl mx-auto">
         <h2 className="text-2xl font-bold text-white mb-2">대시보드</h2>
-        <p className="text-gray-400 mb-6">{user.email}님, 환영합니다!</p>
+        <p className="text-gray-400 mb-6">{user.displayName || user.email || "사용자"}님, 환영합니다!</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">

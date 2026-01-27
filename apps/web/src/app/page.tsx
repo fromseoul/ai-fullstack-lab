@@ -20,9 +20,17 @@ export default function HomePage() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser && !currentUser.emailVerified) {
-        router.push("/verify-email");
-        return;
+      if (currentUser) {
+        // 소셜 로그인 사용자 체크 (카카오: kakao:, 구글: providerData에 google.com)
+        const isSocialLogin =
+          currentUser.uid.startsWith("kakao:") ||
+          currentUser.providerData.some(p => p.providerId === "google.com");
+
+        // 소셜 로그인이 아니고 이메일 인증이 안 된 경우만 리다이렉트
+        if (!isSocialLogin && !currentUser.emailVerified) {
+          router.push("/verify-email");
+          return;
+        }
       }
       setUser(currentUser);
       setLoading(false);

@@ -5,7 +5,7 @@ declare global {
       init: (appKey: string) => void;
       isInitialized: () => boolean;
       Auth: {
-        authorize: (options: { redirectUri: string }) => void;
+        authorize: (options: { redirectUri: string; scope?: string }) => void;
         setAccessToken: (token: string) => void;
         getAccessToken: () => string | null;
         logout: () => Promise<void>;

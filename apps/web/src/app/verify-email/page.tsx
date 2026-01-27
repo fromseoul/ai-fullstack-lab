@@ -23,7 +23,12 @@ export default function VerifyEmailPage() {
         return;
       }
 
-      if (currentUser.emailVerified) {
+      // 소셜 로그인 사용자는 이메일 인증이 필요 없음
+      const isSocialLogin =
+        currentUser.uid.startsWith("kakao:") ||
+        currentUser.providerData.some(p => p.providerId === "google.com");
+
+      if (isSocialLogin || currentUser.emailVerified) {
         router.push("/");
         return;
       }

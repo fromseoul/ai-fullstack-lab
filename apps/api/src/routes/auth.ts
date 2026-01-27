@@ -76,13 +76,6 @@ router.post("/kakao", async (req: Request, res: Response) => {
   try {
     const { code } = req.body;
 
-    // 디버깅: 환경 변수 확인
-    console.log("=== Kakao Auth Debug ===");
-    console.log("KAKAO_REST_API_KEY:", process.env.KAKAO_REST_API_KEY ? `${process.env.KAKAO_REST_API_KEY.substring(0, 8)}...` : "NOT SET");
-    console.log("KAKAO_CLIENT_SECRET:", process.env.KAKAO_CLIENT_SECRET ? `${process.env.KAKAO_CLIENT_SECRET.substring(0, 8)}...` : "NOT SET");
-    console.log("KAKAO_REDIRECT_URI:", process.env.KAKAO_REDIRECT_URI || "NOT SET");
-    console.log("========================");
-
     if (!code) {
       res.status(400).json({ error: "Authorization code is required" });
       return;
@@ -94,31 +87,25 @@ router.post("/kakao", async (req: Request, res: Response) => {
     // 2. 카카오 사용자 정보 조회
     const kakaoUser = await getKakaoUser(tokenData.access_token);
 
-    // 3. Firebase Custom Token 생성
+    // 3. Firebase 사용자 생성/업데이트
     const uid = `kakao:${kakaoUser.id}`;
-    const email = kakaoUser.kakao_account?.email;
     const displayName = kakaoUser.kakao_account?.profile?.nickname;
     const photoURL = kakaoUser.kakao_account?.profile?.profile_image_url;
 
-    // Firebase에서 사용자 생성 또는 업데이트
     try {
+      // 기존 사용자가 있으면 업데이트
       await adminAuth.getUser(uid);
-      // 사용자가 이미 존재하면 정보 업데이트
-      await adminAuth.updateUser(uid, {
-        displayName,
-        photoURL,
-      });
+      await adminAuth.updateUser(uid, { displayName, photoURL });
     } catch {
-      // 사용자가 없으면 새로 생성
+      // 새 사용자 생성
       await adminAuth.createUser({
         uid,
-        email,
         displayName,
         photoURL,
       });
     }
 
-    // Custom Token 생성
+    // 4. Custom Token 생성
     const customToken = await adminAuth.createCustomToken(uid, {
       provider: "kakao",
       kakaoId: kakaoUser.id,
@@ -128,7 +115,6 @@ router.post("/kakao", async (req: Request, res: Response) => {
       customToken,
       user: {
         uid,
-        email,
         displayName,
         photoURL,
       },

@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import healthRouter from "./routes/health.js";
+import authRouter from "./routes/auth.js";
 
 const app: Express = express();
 const PORT = process.env.PORT || 4000;
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use("/api/v1/health", healthRouter);
+app.use("/api/v1/auth", authRouter);
 
 // 404 Handler
 app.use((_req, res) => {

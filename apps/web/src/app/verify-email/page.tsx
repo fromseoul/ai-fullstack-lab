@@ -33,6 +33,7 @@ export default function VerifyEmailPage() {
 
       const isSocialLogin =
         currentUser.uid.startsWith("kakao:") ||
+        currentUser.uid.startsWith("naver:") ||
         currentUser.providerData.some(p => p.providerId === "google.com");
 
       if (isSocialLogin || currentUser.emailVerified) {

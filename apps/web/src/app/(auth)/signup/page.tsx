@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createUserWithEmailAndPassword, sendEmailVerification, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { initKakao, loginWithKakao, KAKAO_JS_KEY } from "@/lib/kakao";
+import { loginWithNaver, NAVER_CLIENT_ID } from "@/lib/naver";
 
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
@@ -145,6 +146,14 @@ export default function SignupPage() {
     loginWithKakao();
   };
 
+  const handleNaverSignup = () => {
+    if (!NAVER_CLIENT_ID) {
+      setError("네이버 로그인 설정이 필요합니다.");
+      return;
+    }
+    loginWithNaver();
+  };
+
   const ValidationItem = ({ valid, text }: { valid: boolean; text: string }) => (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
       {valid ? (
@@ -240,6 +249,25 @@ export default function SignupPage() {
             }}
           >
             카카오로 가입
+          </Button>
+
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={handleNaverSignup}
+            startIcon={
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#FFFFFF">
+                <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/>
+              </svg>
+            }
+            sx={{
+              bgcolor: "#03C75A",
+              color: "white",
+              py: 1.5,
+              "&:hover": { bgcolor: "#02b351" },
+            }}
+          >
+            네이버로 가입
           </Button>
         </Box>
 

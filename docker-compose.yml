@@ -30,7 +30,7 @@ services:
       - /app/apps/web/.next
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost/api
+      - API_URL=http://api:4000
     ports:
       - "3000:3000"
     networks:

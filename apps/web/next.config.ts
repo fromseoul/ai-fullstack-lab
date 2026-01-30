@@ -4,10 +4,13 @@ const nextConfig: NextConfig = {
   output: "standalone",
   transpilePackages: ["@repo/shared"],
   async rewrites() {
+    // API_URL: 서버 전용 (rewrite 프록시 대상)
+    // 로컬: http://localhost:4000, Docker: http://api:4000, 배포: Railway URL
+    const apiUrl = process.env.API_URL || "http://localhost:4000";
     return [
       {
         source: "/api/v1/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_URL || "http://api:4000"}/api/v1/:path*`,
+        destination: `${apiUrl}/api/v1/:path*`,
       },
     ];
   },

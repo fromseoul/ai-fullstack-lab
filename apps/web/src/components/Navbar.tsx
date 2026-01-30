@@ -65,16 +65,28 @@ export default function Navbar() {
 
         <Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
           {user ? (
-            <Button
-              component={Link}
-              href="/"
-              color={pathname === "/" ? "primary" : "inherit"}
-              sx={{
-                bgcolor: pathname === "/" ? "rgba(59, 130, 246, 0.1)" : "transparent",
-              }}
-            >
-              대시보드
-            </Button>
+            <>
+              <Button
+                component={Link}
+                href="/"
+                color={pathname === "/" ? "primary" : "inherit"}
+                sx={{
+                  bgcolor: pathname === "/" ? "rgba(59, 130, 246, 0.1)" : "transparent",
+                }}
+              >
+                대시보드
+              </Button>
+              <Button
+                component={Link}
+                href="/blog"
+                color={pathname.startsWith("/blog") ? "primary" : "inherit"}
+                sx={{
+                  bgcolor: pathname.startsWith("/blog") ? "rgba(59, 130, 246, 0.1)" : "transparent",
+                }}
+              >
+                블로그
+              </Button>
+            </>
           ) : (
             <>
               <Button
@@ -86,6 +98,16 @@ export default function Navbar() {
                 }}
               >
                 홈
+              </Button>
+              <Button
+                component={Link}
+                href="/blog"
+                color={pathname.startsWith("/blog") ? "primary" : "inherit"}
+                sx={{
+                  bgcolor: pathname.startsWith("/blog") ? "rgba(59, 130, 246, 0.1)" : "transparent",
+                }}
+              >
+                블로그
               </Button>
               <Button
                 component={Link}

@@ -4,6 +4,9 @@ import helmet from "helmet";
 import morgan from "morgan";
 import healthRouter from "./routes/health.js";
 import authRouter from "./routes/auth.js";
+import postsRouter from "./routes/posts.js";
+import commentsRouter from "./routes/comments.js";
+import profilesRouter from "./routes/profiles.js";
 
 const app: Express = express();
 const PORT = process.env.PORT || 4000;
@@ -21,6 +24,9 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/v1/health", healthRouter);
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/posts", postsRouter);
+app.use("/api/v1/comments", commentsRouter);
+app.use("/api/v1/profiles", profilesRouter);
 
 // 404 Handler
 app.use((_req, res) => {

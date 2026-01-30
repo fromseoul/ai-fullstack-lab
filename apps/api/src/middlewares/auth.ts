@@ -1,45 +1,75 @@
 import type { Request, Response, NextFunction } from "express";
-
-// Firebase ID Token 검증 미들웨어
-// TODO: Firebase Admin SDK 설정 후 활성화
-
-/*
-import { auth } from "../config/firebase.js";
+import { adminAuth } from "../lib/firebase-admin.js";
 
 export interface AuthRequest extends Request {
   user?: {
     uid: string;
     email?: string;
+    displayName?: string;
+    photoURL?: string;
   };
 }
 
+/**
+ * 필수 인증 미들웨어: 유효한 Firebase ID 토큰이 없으면 401 반환
+ */
 export const verifyToken = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Unauthorized: No token provided" });
+    res.status(401).json({ success: false, error: "Unauthorized: No token provided" });
+    return;
   }
 
   const token = authHeader.split("Bearer ")[1];
 
   try {
-    const decodedToken = await auth.verifyIdToken(token);
+    const decodedToken = await adminAuth.verifyIdToken(token);
     req.user = {
       uid: decodedToken.uid,
       email: decodedToken.email,
+      displayName: decodedToken.name as string | undefined,
+      photoURL: decodedToken.picture as string | undefined,
     };
     next();
-  } catch (error) {
-    return res.status(401).json({ error: "Unauthorized: Invalid token" });
+  } catch {
+    res.status(401).json({ success: false, error: "Unauthorized: Invalid token" });
   }
 };
-*/
 
-// Placeholder middleware (항상 통과)
-export const verifyToken = (_req: Request, _res: Response, next: NextFunction) => {
+/**
+ * 선택적 인증 미들웨어: 토큰이 있으면 사용자 정보를 설정하지만, 없어도 통과
+ * 조회수 추적 등에 사용
+ */
+export const optionalAuth = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader?.startsWith("Bearer ")) {
+    next();
+    return;
+  }
+
+  const token = authHeader.split("Bearer ")[1];
+
+  try {
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    req.user = {
+      uid: decodedToken.uid,
+      email: decodedToken.email,
+      displayName: decodedToken.name as string | undefined,
+      photoURL: decodedToken.picture as string | undefined,
+    };
+  } catch {
+    // 토큰이 유효하지 않아도 선택적 인증이므로 통과
+  }
+
   next();
 };

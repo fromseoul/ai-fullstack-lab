@@ -1,4 +1,5 @@
 import admin from "firebase-admin";
+import type { Auth } from "firebase-admin/auth";
 
 // Firebase Admin 초기화
 if (!admin.apps.length) {
@@ -15,10 +16,12 @@ if (!admin.apps.length) {
       }),
     });
   } else {
-    console.warn("Firebase Admin: 서비스 계정 정보가 없습니다. 카카오 로그인이 작동하지 않습니다.");
+    console.warn(
+      "Firebase Admin: 서비스 계정 정보가 없습니다. 카카오 로그인이 작동하지 않습니다.",
+    );
     admin.initializeApp({ projectId });
   }
 }
 
 export const firebaseAdmin = admin;
-export const adminAuth = admin.auth();
+export const adminAuth: Auth = admin.auth();

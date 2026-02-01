@@ -48,7 +48,7 @@ COPY --from=deps /app/packages/shared/node_modules ./packages/shared/node_module
 COPY . .
 
 # 빌드 시 환경변수 (빌드 타임 전용)
-ARG NEXT_PUBLIC_API_URL
+ARG API_URL
 ARG NEXT_PUBLIC_FIREBASE_API_KEY
 ARG NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
 ARG NEXT_PUBLIC_FIREBASE_PROJECT_ID

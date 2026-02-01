@@ -44,8 +44,7 @@ function NaverCallbackContent() {
 
     const authenticateWithNaver = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-        const response = await fetch(`${apiUrl}/api/v1/auth/naver`, {
+        const response = await fetch("/api/v1/auth/naver", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

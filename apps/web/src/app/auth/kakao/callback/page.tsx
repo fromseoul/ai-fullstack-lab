@@ -32,8 +32,7 @@ function KakaoCallbackContent() {
 
     const authenticateWithKakao = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-        const response = await fetch(`${apiUrl}/api/v1/auth/kakao`, {
+        const response = await fetch("/api/v1/auth/kakao", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -1,6 +1,7 @@
 import { auth } from "./firebase";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+// 클라이언트는 항상 상대 경로 사용 → Next.js rewrite가 API 서버로 프록시
+const API_BASE = "";
 
 interface FetchOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
